@@ -46,3 +46,49 @@ simple est retournée. Cela s'explique par le fait que `@RestController`
  combine les annoations `@Controller` et `@ResponseBody` ce qui fait que des données sont retournées plutôt que des vues en réponse à une
  requête web.
 
+### Création d'une classe Application
+
+* src/main/java/hello/Application.java
+
+```java
+package hello;
+
+import java.utils.Arrays;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+    @Bean
+    public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
+        return args -> {
+            System.out.println("Let's inspect the beans provided by Spring Boot:");
+            String[] beanNames = ctx.getBeanDefinitionNames();
+            Arrays.sort(beanNames);
+            for(String beanName : beanNames) {
+                System.out.println(beanName);
+            }
+        }
+    }
+}
+```
+
+L'annotation `@SpringBootApplication` est un raccourci pour les 3 annotations suivantes:
+* `@Configuration` : definie la classe comme étant la source de definitions de *bean* pour le contexte de l'application.
+* `@EnableAutoConfiguration` : spécifie à Spring Boot d'ajouter des *beans* et des propriétés de configuration.
+* `@EnableWebMvc`: normalement on devrait l'ajouter, mais Spring Boot le
+fait automatiquement quand il détecte **spring-webmvc** dans le classpath (chemin d'accès aux classes et packages). Cela marque l'application comme étant une application web et de ce fait active des comportements clefs tels que l'activation de `DispatcherServlet`.
+* `@ComponentScan` pousse Spring à chercher d'autres composants, configurations et services dans le package `hello` lui permettant de trouver les contrôleurs.
+
+La méthode `main()` utilise `SpringApplication.run()` de Spring Boot pour lancer l'application. Il n'y a pas de fichier de configuration **web.xml**. C'est une application 100% en java.
+
+La méthode `commandLineRunner` marquée par l'annotation `@Bean` est exécutée au démarrage. Elle retrouve tous les *beans* créés par notre application ou automatiquement ajoutés par Spring Boot et les affiche.
