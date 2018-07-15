@@ -21,6 +21,8 @@ mkdir -p src/main/java/hello
 
 ### Génération d'un contrôleur.
 
+* src/main/java/hello/HelloController.java
+
 ```java
 package hello;
 
@@ -53,7 +55,7 @@ simple est retournée. Cela s'explique par le fait que `@RestController`
 ```java
 package hello;
 
-import java.utils.Arrays;
+import java.util.Arrays;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -77,7 +79,7 @@ public class Application {
             for(String beanName : beanNames) {
                 System.out.println(beanName);
             }
-        }
+        };
     }
 }
 ```

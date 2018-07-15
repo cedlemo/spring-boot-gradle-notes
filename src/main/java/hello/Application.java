@@ -1,6 +1,6 @@
 package hello;
 
-import java.utils.Arrays;
+import java.util.Arrays;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -24,6 +24,6 @@ public class Application {
             for(String beanName : beanNames) {
                 System.out.println(beanName);
             }
-        }
+        };
     }
 }
