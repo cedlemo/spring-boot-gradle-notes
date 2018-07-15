@@ -92,3 +92,45 @@ fait automatiquement quand il détecte **spring-webmvc** dans le classpath (chem
 La méthode `main()` utilise `SpringApplication.run()` de Spring Boot pour lancer l'application. Il n'y a pas de fichier de configuration **web.xml**. C'est une application 100% en java.
 
 La méthode `commandLineRunner` marquée par l'annotation `@Bean` est exécutée au démarrage. Elle retrouve tous les *beans* créés par notre application ou automatiquement ajoutés par Spring Boot et les affiche.
+
+### Lancement de l'application.
+
+#### Création du gradle.build file
+
+```groovy
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.3.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+bootJar {
+    baseName = 'gs-spring-boot'
+    version =  '0.1.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    testCompile("junit:junit")
+}
+```
+
+* block `buildscript`: ce block controle les dépendances pour le
+le script de génération en lui-même et mais pas les dépendances de l'application qui sont gérées par les deux blocks `repositories` et
+`dependencies`.
