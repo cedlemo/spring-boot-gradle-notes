@@ -374,3 +374,12 @@ public class HelloControllerIT {
         assertThat(response.getBody(), equalTo("Greetings from Spring Boot!"));
     }
 ```
+
+On pourra lancer les tests avec:
+
+```
+./gradlew test
+```
+
+Le rapport de test pourra être consulté via le fichier :
+build/reports/tests/test/classes/hello.HelloControllerIT.html
