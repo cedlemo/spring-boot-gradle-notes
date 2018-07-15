@@ -168,7 +168,7 @@ errorPageRegistrarBeanPostProcessor
 faviconHandlerMapping
 faviconRequestHandler
 handlerExceptionResolver
-helloController                                                  [126/817]
+helloController
 hiddenHttpMethodFilter
 httpPutFormContentFilter
 httpRequestHandlerAdapter
@@ -274,4 +274,103 @@ Dans un autre terminal, on peut se connecter au service lancé pour voir ce qu'i
 ```
 $ curl localhost:8080
 Greetings from Spring Boot!
+```
+
+### Ajout de tests unitaires.
+* ajout d'une instruction de test dans *build.gradle.*:
+
+```groovy
+testCompile("org.springframework.boot:spring-boot-starter-test")
+```
+
+* Test et simulation (mockage) de requete HTTP.
+
+  *  src/test/java/hello/HelloControllerTest.java
+
+```java
+package hello;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+public class HelloControllerTest {
+
+    @Autowired
+    private MockMvc mvc;
+
+    @Test
+    public void getHello() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("Greetings from Spring Boot!")));
+    }
+}
+```
+
+`MockMvc` est fourni par Spring Test et permet, grâce à des classes très pratiques, d'envoyer des requêtes HTTP dans `DispatcherServlet` et de tester le résultat.
+On notera l'utilisation conjointe des annotations `@AutoConfigureMockMvc` et `@SpringBootTest` qui injecte une instance de `@MockMvc`.
+
+L'utilisation de `@SpringBootTest` dit à Spring que l'on veut que soit créé le contexte de l'application dans son intégralité. En effet on aurait put demander seulement le contexte de la couche web avec l'annotation `@WebMvcTest`.
+
+Spring boot va essayer de trouver la classe principale de l'application mais il est tout à fait possible de personnaliser ce comportement.
+
+* Simple test d'integration fullstack:
+
+    * src/test/java/hello/HelloControllerIT.java
+
+```java
+package hello;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+
+import java.net.URL;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit4.SpringRunner;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class HelloControllerIT {
+
+    @LocalServerPort
+    private int port;
+
+    private URL base;
+
+    @Autowired
+    private TestRestTemplate template;
+
+    @Before
+    public void setUp() throws Exception {
+        this.base = new URL("http://localhost:" + port + "/");
+    }
+
+    @Test
+    public void getHello() throws Exception {
+        ResponseEntity<String> response = template.getForEntity(base.toString(),
+                String.class);
+        assertThat(response.getBody(), equalTo("Greetings from Spring Boot!"));
+    }
 ```
